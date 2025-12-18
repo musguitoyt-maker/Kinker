@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinker Maps Ultra | Global Intelligence</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #0026ff; --bg: #ffffff; --text: #1a1a1b; --border: #f0f0f2; }
+        [data-theme="dark"] { --bg: #0a0a0b; --text: #f5f5f7; --border: #1f1f22; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        header { padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); z-index: 1000; background: var(--bg); }
+        .search-container { flex: 1; max-width: 600px; margin: 0 20px; }
+        .search-container input { width: 100%; padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--border); color: var(--text); outline: none; }
+
+        main { flex: 1; display: flex; position: relative; }
+        .info-panel { width: 350px; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; gap: 20px; background: var(--bg); overflow-y: auto; z-index: 100; }
+
+        /* SELECTOR DE VISTAS REALES */
+        .view-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .v-btn { padding: 12px; font-size: 11px; font-weight: 800; border: 1px solid var(--border); background: var(--border); color: var(--text); cursor: pointer; border-radius: 8px; text-transform: uppercase; }
+        .v-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        #weather-card { padding: 15px; border-radius: 12px; background: linear-gradient(135deg, #0026ff, #00c6ff); color: white; display: none; margin-top: 10px; }
+        
+        #map { flex: 1; z-index: 1; background: #000; }
+        
+        .route-info { padding: 15px; background: var(--border); border-radius: 12px; font-size: 13px; }
+        .step { padding: 8px 0; border-bottom: 1px solid var(--bg); font-size: 12px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:18px; height:18px; background:var(--accent); border-radius:4px;"></div>
+            <span style="font-weight:800; letter-spacing:-0.5px;">Kinker Maps</span>
+        </div>
+        <div class="search-container">
+            <input type="text" id="target" placeholder="Ciudad, país o calle..." onkeypress="if(event.key==='Enter') search()">
+        </div>
+        <button class="v-btn" style="width:40px; height:40px; padding:0" onclick="toggleTheme()">🌓</button>
+    </header>
+
+    <main>
+        <div class="info-panel">
+            <p style="font-size:11px; font-weight:800; opacity:0.5; letter-spacing:1px;">MODO DE VISTA</p>
+            <div class="view-switcher">
+                <button id="btn-std" class="v-btn active" onclick="changeLayer('std')">Estándar</button>
+                <button id="btn-sat" class="v-btn" onclick="changeLayer('sat')">Satélite</button>
+                <button id="btn-topo" class="v-btn" onclick="changeLayer('topo')">Relieve</button>
+                <button id="btn-dark" class="v-btn" onclick="changeLayer('dark')">Oscuro</button>
+            </div>
+
+            <div id="weather-card">
+                <p id="w-city" style="font-size:10px; font-weight:800; opacity:0.8;"></p>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span id="w-temp" style="font-size:32px; font-weight:800;"></span>
+                    <span id="w-desc" style="font-weight:600;"></span>
+                </div>
+            </div>
+
+            <div id="route-panel" style="display:none;">
+                <div class="route-info">
+                    <p id="dest-title" style="font-weight:800; font-size:15px;"></p>
+                    <p id="dist-time" style="color:var(--accent); font-weight:800; margin-top:5px;"></p>
+                </div>
+                <div id="instructions" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <div id="map"></div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map = L.map('map').setView([40.4168, -3.7038], 13);
+        let currentMarker;
+        let uLat, uLon;
+
+        // DEFINICIÓN DE CAPAS REALES
+        const layers = {
+            std: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+            sat: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+        };
+
+        layers.std.addTo(map);
+
+        function changeLayer(type) {
+            Object.values(layers).forEach(l => map.removeLayer(l));
+            layers[type].addTo(map);
+            document.querySelectorAll('.v-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + type).classList.add('active');
+        }
+
+        async function search() {
+            const q = document.getElementById('target').value;
+            const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
+            const d = await r.json();
+
+            if(d[0]) {
+                const lat = parseFloat(d[0].lat), lon = parseFloat(d[0].lon);
+                map.flyTo([lat, lon], 15);
+                
+                if(currentMarker) map.removeLayer(currentMarker);
+                currentMarker = L.marker([lat, lon]).addTo(map);
+
+                document.getElementById('route-panel').style.display = 'block';
+                document.getElementById('dest-title').innerText = d[0].display_name.split(',')[0];
+                
+                getWeather(lat, lon, d[0].display_name.split(',')[0]);
+                if(uLat) calculateRoute(lat, lon);
+            }
+        }
+
+        async function getWeather(lat, lon, city) {
+            const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await r.json();
+            document.getElementById('weather-card').style.display = 'block';
+            document.getElementById('w-city').innerText = city.toUpperCase();
+            document.getElementById('w-temp').innerText = Math.round(data.current_weather.temperature) + "°C";
+            document.getElementById('w-desc').innerText = "Viento: " + data.current_weather.windspeed + "km/h";
+        }
+
+        async function calculateRoute(dLat, dLon) {
+            const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${uLon},${uLat};${dLon},${dLat}?steps=true`);
+            const data = await r.json();
+            if(data.routes) {
+                const route = data.routes[0];
+                document.getElementById('dist-time').innerText = `${(route.distance/1000).toFixed(1)} KM | ${Math.round(route.duration/60)} MIN`;
+                document.getElementById('instructions').innerHTML = route.legs[0].steps.map((s, i) => `<div class="step"><b>${i+1}.</b> ${s.maneuver.instruction}</div>`).join('');
+            }
+        }
+
+        function toggleTheme() { document.body.getAttribute('data-theme') === 'dark' ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark'); }
+
+        navigator.geolocation.getCurrentPosition(p => {
+            uLat = p.coords.latitude; uLon = p.coords.longitude;
+            map.setView([uLat, uLon], 13);
+            L.circle([uLat, uLon], {radius: 200, color: '#0026ff'}).addTo(map);
+        });
+    </script>
+</body>
+</html>
