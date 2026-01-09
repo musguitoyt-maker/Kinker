@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kinker | Buscador de Conocimiento</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -33,29 +33,44 @@
             overflow-x: hidden;
         }
 
-        /* --- BOTÓN IR AL MAPA --- */
-        .btn-mapa-float {
+        /* --- BOTONES FLOTANTES RESPONSIVOS --- */
+        .btn-mapa-float, .btn-ai-float {
             position: fixed;
-            top: 85px; /* Justo debajo del nav */
             right: 50px;
             z-index: 90;
             padding: 10px 20px;
-            background: var(--accent);
-            color: white;
             text-decoration: none;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 10px 20px rgba(0, 38, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
         }
 
-        .btn-mapa-float:hover {
+        .btn-mapa-float { top: 85px; background: var(--accent); color: white; }
+        .btn-ai-float { top: 135px; background: var(--card-bg); color: var(--accent); border: 2px solid var(--accent); }
+
+        /* Ajuste de botones para móviles */
+        @media (max-width: 768px) {
+            .btn-mapa-float, .btn-ai-float {
+                right: 20px;
+                padding: 8px 15px;
+                font-size: 10px;
+            }
+            .btn-mapa-float { top: auto; bottom: 80px; }
+            .btn-ai-float { top: auto; bottom: 25px; }
+        }
+
+        .btn-mapa-float:hover, .btn-ai-float:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 38, 255, 0.3);
             filter: brightness(1.1);
         }
+
+        .btn-ai-float:hover { background: var(--accent); color: white; }
 
         /* --- DECORACIÓN --- */
         .decoration-line {
@@ -71,113 +86,105 @@
 
         /* --- NAV --- */
         nav {
-            width: 100%; padding: 20px 50px; display: flex; justify-content: space-between;
+            width: 100%; padding: 15px 20px; display: flex; justify-content: space-between;
             align-items: center; position: fixed; top: 0; z-index: 100;
             backdrop-filter: blur(25px); background: var(--glass); border-bottom: 1px solid var(--border);
         }
 
+        @media (min-width: 768px) { nav { padding: 20px 50px; } }
+
         .btn {
-            padding: 10px 22px; border-radius: 14px; font-weight: 600; cursor: pointer;
-            border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px;
+            padding: 8px 16px; border-radius: 12px; font-weight: 600; cursor: pointer;
+            border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px;
         }
         .btn-primary { background: var(--accent); color: white; border: none; box-shadow: 0 4px 15px rgba(0,38,255,0.2); }
-        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
         /* --- HERO --- */
         .hero-section {
-            margin-top: 22vh; display: flex; flex-direction: column; align-items: center;
-            animation: fadeInDown 0.8s ease-out;
+            margin-top: 15vh; padding: 0 20px; display: flex; flex-direction: column; align-items: center;
+            text-align: center;
         }
 
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .main-logo { width: 100%; max-width: 440px; margin-bottom: 30px; cursor: pointer; }
 
-        .main-logo { width: 440px; max-width: 80%; margin-bottom: 40px; cursor: pointer; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05)); }
-
-        .search-container { width: 95%; max-width: 720px; text-align: center; }
+        .search-container { width: 100%; max-width: 720px; }
         .search-bar {
             background: var(--card-bg); border: 1px solid var(--border);
-            padding: 16px 28px; border-radius: 50px; box-shadow: var(--shadow);
-            display: flex; align-items: center; gap: 15px; margin-bottom: 25px;
+            padding: 12px 20px; border-radius: 50px; box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
         }
-        .search-bar:focus-within { border-color: var(--accent); transform: scale(1.01); }
-        input#q { flex: 1; border: none; outline: none; background: transparent; font-size: 18px; color: var(--text); }
+        input#q { flex: 1; border: none; outline: none; background: transparent; font-size: 16px; color: var(--text); width: 100%; }
 
-        .recommended-box {
-            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 50px;
-        }
+        .recommended-box { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
         .rec-tag {
-            font-size: 12px; font-weight: 700; color: var(--text); opacity: 0.7;
-            padding: 10px 18px; border-radius: 30px; background: var(--card-bg);
-            border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 700; color: var(--text); opacity: 0.7;
+            padding: 8px 14px; border-radius: 30px; background: var(--card-bg);
+            border: 1px solid var(--border); cursor: pointer;
         }
-        .rec-tag:hover { opacity: 1; border-color: var(--accent); color: var(--accent); background: rgba(0,38,255,0.05); }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD RESPONSIVO --- */
         .dashboard {
-            width: 90%; max-width: 1100px; margin: 20px auto 100px;
-            display: grid; grid-template-columns: 2fr 1fr; gap: 40px;
+            width: 95%; max-width: 1100px; margin: 20px auto 100px;
+            display: grid; grid-template-columns: 1fr; gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .dashboard { grid-template-columns: 2fr 1fr; gap: 40px; }
         }
 
         .card {
             background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 28px; padding: 30px; box-shadow: var(--shadow);
+            border-radius: 24px; padding: 20px; box-shadow: var(--shadow);
         }
 
-        .section-tag { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; display: block; }
-
-        .news-item { padding: 18px 0; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .news-item:last-child { border: none; }
-        .news-item:hover { transform: translateX(5px); color: var(--accent); }
+        .section-tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: block; }
 
         /* --- RESULTADOS --- */
-        #results { width: 90%; max-width: 800px; margin: 40px auto; display: none; }
-        .res-card { margin-bottom: 25px; padding: 25px; border-radius: 24px; background: var(--card-bg); border: 1px solid var(--border); animation: fadeInUp 0.5s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .res-card a { font-size: 22px; font-weight: 800; color: var(--accent); text-decoration: none; display: block; margin-bottom: 10px; }
+        #results { width: 95%; max-width: 800px; margin: 40px auto; display: none; padding-bottom: 100px; }
+        .res-card { margin-bottom: 20px; padding: 20px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--border); }
+        .res-card a { font-size: 18px; font-weight: 800; color: var(--accent); text-decoration: none; }
         
-        .searching .hero-section, .searching .dashboard { display: none; }
+        .searching .hero-section, .searching .dashboard, .searching .btn-mapa-float, .searching .btn-ai-float { display: none; }
         .searching #results { display: block; }
-        .searching .btn-mapa-float { display: none; } /* Ocultar mapa en resultados para limpiar vista */
 
-        .theme-btn { font-size: 22px; cursor: pointer; margin-right: 25px; }
+        .theme-btn { font-size: 20px; cursor: pointer; margin-right: 15px; }
     </style>
 </head>
 <body id="body">
 
     <div class="decoration-line"></div>
     <div class="blob" style="top: -100px; left: -100px;"></div>
-    <div class="blob" style="bottom: -100px; right: -100px; background: #ff00ea; opacity: 0.04;"></div>
 
     <nav>
         <div style="display: flex; align-items: center;">
             <span class="theme-btn" onclick="toggleTheme()">🌓</span>
             <div id="guest-nav">
-                <button class="btn" onclick="openM('regM')">Registrarse</button>
-                <button class="btn btn-primary" onclick="openM('logM')" style="margin-left:10px">Acceder</button>
+                <button class="btn" onclick="openM('regM')">Registro</button>
+                <button class="btn btn-primary" onclick="openM('logM')" style="margin-left:5px">Acceso</button>
             </div>
-            <div id="user-nav" style="display:none; align-items:center; gap:15px;" onclick="logout()">
-                <div id="u-av" style="width:40px; height:40px; background:var(--accent); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer"></div>
-                <span id="u-name" style="font-weight:700; font-size:14px"></span>
+            <div id="user-nav" style="display:none; align-items:center; gap:10px;" onclick="logout()">
+                <div id="u-av" style="width:35px; height:35px; background:var(--accent); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer"></div>
+                <span id="u-name" style="font-weight:700; font-size:12px"></span>
             </div>
         </div>
     </nav>
 
-    <a href="KinkerMaps.html" class="btn-mapa-float">Ir al mapa</a>
+    <a href="KinkerMaps.html" class="btn-mapa-float">📍 Mapa</a>
+    <a href="KinkerAI.html" class="btn-ai-float">✨ IA Chat</a>
 
     <div class="hero-section">
         <img src="logo.png" alt="Kinker" class="main-logo" onclick="location.reload()">
         <div class="search-container">
             <div class="search-bar">
                 <input type="text" id="q" placeholder="¿Qué quieres descubrir hoy?" autocomplete="off">
-                <button class="btn btn-primary" onclick="search()" style="border-radius:30px; padding: 10px 30px;">Buscar</button>
+                <button class="btn btn-primary" onclick="search()" style="border-radius:30px;">Buscar</button>
             </div>
             
             <div class="recommended-box">
-                <div class="rec-tag" onclick="reSearch('Últimos descubrimientos espaciales')">🚀 Espacio</div>
-                <div class="rec-tag" onclick="reSearch('Avances tecnológicos 2024')">💻 Tecnología</div>
-                <div class="rec-tag" onclick="reSearch('Grandes misterios de la historia')">🏛️ Historia</div>
-                <div class="rec-tag" onclick="reSearch('Naturaleza salvaje y clima')">🌿 Naturaleza</div>
-                <div class="rec-tag" onclick="reSearch('Nuevas tendencias en arte moderno')">🎨 Arte</div>
+                <div class="rec-tag" onclick="reSearch('Espacio')">🚀 Espacio</div>
+                <div class="rec-tag" onclick="reSearch('Tecnología')">💻 Tech</div>
+                <div class="rec-tag" onclick="reSearch('Historia')">🏛️ Historia</div>
+                <div class="rec-tag" onclick="reSearch('Naturaleza')">🌿 Naturaleza</div>
             </div>
         </div>
     </div>
@@ -187,32 +194,32 @@
     <div class="dashboard">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <span class="section-tag" style="margin:0">Descubrimiento Aleatorio</span>
-                <button class="btn" onclick="loadNews()" style="padding:6px 12px; font-size:11px; border-radius:10px">🔄 Explorar otro tema</button>
+                <span class="section-tag">Descubrimiento</span>
+                <button class="btn" onclick="loadNews()" style="padding:5px 10px; font-size:10px;">🔄</button>
             </div>
-            <div id="news-feed">Cargando sugerencias...</div>
+            <div id="news-feed">Cargando...</div>
         </div>
         
-        <div style="display: flex; flex-direction: column; gap: 25px;">
-            <div class="card" style="background: linear-gradient(135deg, var(--accent), #4e00ff); color: white; border: none;">
-                <span id="clock" style="font-size: 32px; font-weight: 800; display:block;">00:00</span>
-                <p id="date" style="font-size: 13px; opacity: 0.8; margin: 8px 0 0; font-weight: 600;"></p>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card" style="background: linear-gradient(135deg, var(--accent), #4e00ff); color: white; border: none; text-align: center;">
+                <span id="clock" style="font-size: 28px; font-weight: 800; display:block;">00:00</span>
+                <p id="date" style="font-size: 12px; opacity: 0.8; margin-top: 5px;"></p>
             </div>
             <div class="card">
-                <span class="section-tag">Tu Actividad Reciente</span>
-                <div id="history" style="display:flex; flex-direction:column; gap:10px;"></div>
+                <span class="section-tag">Reciente</span>
+                <div id="history" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
         </div>
     </div>
 
-    <div class="modal-bg" id="regM" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:1000; backdrop-filter:blur(15px);"><div class="card" style="width:340px; text-align:center;"><h2>Únete a Kinker</h2><input type="text" id="ru" class="btn" style="width:100%; margin-bottom:12px; text-align:left;" placeholder="Usuario"><input type="password" id="rp" class="btn" style="width:100%; margin-bottom:20px; text-align:left;" placeholder="Contraseña"><button class="btn btn-primary" style="width:100%" onclick="reg()">Registrarse</button><p onclick="closeM()" style="font-size:12px; margin-top:20px; cursor:pointer; opacity:0.6">Volver al buscador</p></div></div>
-    <div class="modal-bg" id="logM" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:1000; backdrop-filter:blur(15px);"><div class="card" style="width:340px; text-align:center;"><h2>Bienvenido</h2><input type="text" id="lu" class="btn" style="width:100%; margin-bottom:12px; text-align:left;" placeholder="Usuario"><input type="password" id="lp" class="btn" style="width:100%; margin-bottom:20px; text-align:left;" placeholder="Contraseña"><button class="btn btn-primary" style="width:100%" onclick="log()">Entrar</button><p onclick="closeM()" style="font-size:12px; margin-top:20px; cursor:pointer; opacity:0.6">Volver al buscador</p></div></div>
+    <div class="modal-bg" id="regM" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:1000; padding:20px; backdrop-filter:blur(10px);"><div class="card" style="width:100%; max-width:340px; text-align:center;"><h2>Únete</h2><input type="text" id="ru" class="btn" style="width:100%; margin-bottom:12px; text-align:left;" placeholder="Usuario"><input type="password" id="rp" class="btn" style="width:100%; margin-bottom:20px; text-align:left;" placeholder="Contraseña"><button class="btn btn-primary" style="width:100%" onclick="reg()">Registrarse</button><p onclick="closeM()" style="font-size:12px; margin-top:20px; cursor:pointer; opacity:0.6">Cerrar</p></div></div>
+    <div class="modal-bg" id="logM" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:1000; padding:20px; backdrop-filter:blur(10px);"><div class="card" style="width:100%; max-width:340px; text-align:center;"><h2>Entrar</h2><input type="text" id="lu" class="btn" style="width:100%; margin-bottom:12px; text-align:left;" placeholder="Usuario"><input type="password" id="lp" class="btn" style="width:100%; margin-bottom:20px; text-align:left;" placeholder="Contraseña"><button class="btn btn-primary" style="width:100%" onclick="log()">Acceder</button><p onclick="closeM()" style="font-size:12px; margin-top:20px; cursor:pointer; opacity:0.6">Cerrar</p></div></div>
 
     <script>
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('date').innerText = now.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
         }
         setInterval(updateClock, 1000); updateClock();
 
@@ -234,13 +241,13 @@
 
         function openM(id) { document.getElementById(id).style.display='flex'; }
         function closeM() { document.querySelectorAll('.modal-bg').forEach(m=>m.style.display='none'); }
-        function reg() { const u=document.getElementById('ru').value, p=document.getElementById('rp').value; if(u&&p){localStorage.setItem('u_'+u,JSON.stringify({u,p})); alert("Cuenta Creada"); closeM();} }
+        function reg() { const u=document.getElementById('ru').value, p=document.getElementById('rp').value; if(u&&p){localStorage.setItem('u_'+u,JSON.stringify({u,p})); alert("Creado"); closeM();} }
         function log() { const u=document.getElementById('lu').value, p=document.getElementById('lp').value; const d=JSON.parse(localStorage.getItem('u_'+u)); if(d&&d.p===p){session=d; localStorage.setItem('k_ses',JSON.stringify(d)); upUI(); closeM();} else alert("Error"); }
         function logout() { localStorage.removeItem('k_ses'); location.reload(); }
 
         function loadHistory() {
             const h = JSON.parse(localStorage.getItem('k_history') || '[]');
-            document.getElementById('history').innerHTML = h.map(i => `<div style="font-size:13px; padding:10px; background:var(--border); border-radius:12px; cursor:pointer; font-weight:600;" onclick="reSearch('${i}')">🕒 ${i}</div>`).join('');
+            document.getElementById('history').innerHTML = h.map(i => `<div style="font-size:12px; padding:10px; background:var(--border); border-radius:12px; cursor:pointer;" onclick="reSearch('${i}')">🕒 ${i}</div>`).join('');
         }
 
         function reSearch(val) { document.getElementById('q').value = val; search(); }
@@ -253,18 +260,17 @@
 
             document.body.classList.add('searching');
             const resBox = document.getElementById('results');
-            resBox.innerHTML = '<div style="padding:100px; text-align:center; font-weight:800; opacity:0.5; letter-spacing:2px;">KINKER BUSCANDO...</div>';
+            resBox.innerHTML = '<div style="padding:50px; text-align:center; opacity:0.5;">KINKER BUSCANDO...</div>';
 
             const r = await fetch(`https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`);
             const data = await r.json();
 
-            let html = `<button class="btn" onclick="location.reload()" style="margin-bottom:40px; border-radius:30px">← Volver al inicio</button>`;
+            let html = `<button class="btn" onclick="location.reload()" style="margin-bottom:20px;">← Volver</button>`;
             data.query.search.forEach(i => {
                 html += `
                     <div class="res-card">
                         <a href="https://es.wikipedia.org/wiki/${i.title}" target="_blank">${i.title}</a>
-                        <p style="margin-top:10px; opacity:0.7; font-size:15px; line-height:1.7;">${i.snippet.replace(/<[^>]*>/g, '')}...</p>
-                        <button class="btn" style="margin-top:15px; font-size:11px; padding:6px 15px;" onclick="reSearch('${i.title}')">Explorar relacionado</button>
+                        <p style="margin-top:10px; opacity:0.7; font-size:14px;">${i.snippet.replace(/<[^>]*>/g, '')}...</p>
                     </div>
                 `;
             });
@@ -275,15 +281,12 @@
         document.getElementById('q').onkeypress = (e) => { if(e.key === 'Enter') search(); };
 
         async function loadNews() {
-            const words = ['Ciencia', 'Arqueología', 'Arquitectura', 'Galaxias', 'Civilizaciones'];
+            const words = ['Ciencia', 'Espacio', 'Historia'];
             const w = words[Math.floor(Math.random() * words.length)];
             const r = await fetch(`https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${w}&format=json&origin=*`);
             const data = await r.json();
             document.getElementById('news-feed').innerHTML = data.query.search.slice(0, 5).map(i => `
-                <div class="news-item" onclick="reSearch('${i.title}')">
-                    <span style="font-weight:700;">${i.title}</span>
-                    <span style="opacity:0.3; font-size:18px">→</span>
-                </div>
+                <div style="padding:10px 0; border-bottom:1px solid var(--border); cursor:pointer; font-size:13px;" onclick="reSearch('${i.title}')">${i.title} →</div>
             `).join('');
         }
 
